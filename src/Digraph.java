@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 
 
+@SuppressWarnings("serial")
 public class Digraph extends JPanel{			
 	private Matrix mtx;
 	private int[][] matrix;
@@ -18,11 +19,11 @@ public class Digraph extends JPanel{
 	private ArrayList<Edge> edges;
 	
     public Digraph(String title, Matrix mtx, int[][] matrix) throws NullPointerException{
-    	JFrame f = new JFrame(title);
-		f.add(this);
-		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		f.setSize(600,300);
-		f.setVisible(true);			
+    	JFrame frame = new JFrame(title);
+		frame.add(this);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setSize(600,300);
+		frame.setVisible(true);			
 		
 		this.mtx = mtx;
 		this.matrix = matrix;
@@ -81,7 +82,7 @@ public class Digraph extends JPanel{
 		//adding the edges between nodes
 		for(int n1 = 0; n1 < nodes.size(); n1++){
 			for(int n2 = 0; n2 < nodes.size(); n2++){
-				//saving the indexes of the nodes to search for thei value 
+				//saving the indexes of the nodes to search for their value 
 				node1 = nodes.get(n1).getNode()-1;
 				node2 = nodes.get(n2).getNode()-1;
 				if(mtx.getValueOf(matrix, node1 , node2) == 1){
@@ -92,28 +93,98 @@ public class Digraph extends JPanel{
 		
 	}
 	
-	   public void paint(Graphics g) {
-		    int width = 30;
-		    int height = 30; 	
+	/**
+	 * Draws the graph to a given frame.
+	 */
+	public void paint(Graphics g) {
+		int width = 30;
+		int height = 30; 	
+		g.setColor(Color.black);
+		int count = 0;
+		Node node1, node2;
+					
+		//drawing the nodes with names
+		for (Node node : nodes) {
+			g.setColor(Color.white);
+			g.fillOval(node.x-width/2, node.y-height/2, width, height);
 			g.setColor(Color.black);
-			int count = 0;
+			g.drawOval(node.x-width/2, node.y-height/2, width, height);		    
+			g.drawString(node.name, node.x-width/2+12, node.y-height/2+20);
+		}
 			
-			QuadCurve2D q = new QuadCurve2D.Float();
+		for (Edge edge : edges) {
+			//saving the indexes of the nodes to search for their value 
+			node1 = nodes.get(edge.node1);
+			node2 = nodes.get(edge.node2);
 			
-			for (Edge e : edges) {
-				//checking for edges
+			//neighbour nodes
+			if(Math.abs(edge.node2 - edge.node1) == 1){
+				if(edge.node1 > edge.node2){
+					g.drawLine(node1.x-15, node1.y-3, node2.x+15, node2.y-3);
+					drawArrow(g, node2.x, node2.y, -1);
+				}else{
+					g.drawLine(node1.x+15, node1.y+3, node2.x-15, node2.y+3);
+					drawArrow(g, node2.x, node2.y, 1);
+				}
+			}
+			
+			//checking for loops
+			else if(node1.equals(node2)){
+				g.drawArc(node1.x, node1.y-35, 8, 40, 0, 180);
+				drawArrow(g, node1.x, node1.y, 0);
+			}
+			//other edges between non-neighbour nodes 
+			else{
+				int wdth = Math.abs(node2.x - node1.x) - 8;
 				
+				if(edge.node1 > edge.node2){
+					g.drawArc(node2.x + 8, node2.y-38, wdth, 50, 0, 180);
+					drawArrow(g, node2.x, node2.y, -3);
+				}else{
+					g.drawArc(node1.x + 8, node1.y-38, wdth, 50, 0, 180);
+					drawArrow(g, node2.x, node2.y, 3);
+				}
 			}
+							
+		}
 		
-			for (Node n : nodes) {
-			    g.setColor(Color.white);
-			    g.fillOval(n.x-width/2, n.y-height/2, width, height);
-			    g.setColor(Color.black);
-			    g.drawOval(n.x-width/2, n.y-height/2, width, height);		    
-			    g.drawString(n.name, n.x-width/2+12, n.y-height/2+20);
-			}
-	    }
+
+	 }
 	    
+	public void drawArrow(Graphics g, int x, int y,int direction){
+		switch(direction){
+			case 0:
+				g.drawLine(x+8, y-15, x+5, y-25);
+				g.drawLine(x+8, y-15, x+11, y-25);
+				break;
+			case -1:
+				g.drawLine(x+15, y-3, x+25, y-6);
+				g.drawLine(x+15, y-3, x+25, y);
+				break;
+			case 1:
+				g.drawLine(x-15, y+3, x-25, y);
+				g.drawLine(x-15, y+3, x-25, y+6);
+				break;
+			case -2:
+				g.drawLine(x, y+15, x+12, y+18);
+				g.drawLine(x, y+15, x+5, y+28);
+				break;
+			case 2:
+				g.drawLine(x, y+15, x-12, y+18);
+				g.drawLine(x, y+15, x-5, y+28);
+				break;
+			case -3:
+				g.drawLine(x+8, y-15, x+20, y-23);
+				g.drawLine(x+8, y-15, x+11, y-28);
+				break;
+			case 3:
+				g.drawLine(x, y-15, x-12, y-23);
+				g.drawLine(x, y-15, x-3, y-28);
+				break;				
+					
+		}
+	}
+	
     
     /**
      * Class representing the nodes of a digraph
@@ -136,6 +207,17 @@ public class Digraph extends JPanel{
 		 */
 		public int getNode(){
 			return Integer.valueOf(name);
+		}
+		
+		/**
+		 * Checks whether the 2 nodes are equal or not
+		 * @param node2
+		 */
+		public boolean equals(Node node2){
+			if(this.getNode() == node2.getNode()){
+				return true;
+			}
+			return false;
 		}
     }
 	
