@@ -375,45 +375,45 @@ public class Matrix {
 						if((i==edge && j>=0) || (j==edge && i>=0)){  
 							//assuming there's upper L-searching for other 1s
 							edge = i;
-							state = 24;
+							state = 20;
 						}
 						//if it's not the upper L it would be the lower L 
 						else{
 							edge = j;
-							state = 14;
+							state = 10;
 						}
 					}
-					if(state == 1 || state == 11 || state == 13 || state == 14 || state == 15){
+					if(state == 1 || state == 11 || state == 13 || state == 10 || state == 15 || state == 16){
 						if((getValueOf(lowerMatrix, i, j) == 1  ||
 								getValueOf(upperMatrix, i, j) == 1) && ((j>edge && i>=0) || (i>edge && j>=0))){
 							state = 0;
 						}
 						if(state == 1 && getValueOf(upperMatrix, i, j) == 1){
-							state = 16;
+							state = 15;
 						}
-						if(state == 14 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
+						if(state == 10 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
 							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i)==1){
 								state = 13;
 							}
 							else{
-								state = 15;
+								state = 16;
 							}
 						}
 					}
-					if(state == 2 || state == 22 || state == 23 || state == 24 || state == 25){
+					if(state == 2 || state == 22 || state == 23 || state == 20 || state == 25 || state == 26){
 						if((getValueOf(lowerMatrix, i, j) == 1  ||
 								getValueOf(upperMatrix, i, j) == 1) && (i > edge &&j > edge) ){
 							state = 0;
 						}
 						if(state == 2 && getValueOf(upperMatrix, i, j) == 1){
-							state = 26;
+							state = 25;
 						}
-						if(state == 24 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
+						if(state == 20 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
 							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i) == 1){
 								state = 23;
 							}
 							else{
-								state = 25;
+								state = 26;
 							}
 						}
 					}
@@ -427,25 +427,42 @@ public class Matrix {
 	
 	/**
 	 * Decides the state of the chosen matrix, whether it is possibly,
-	 * universally robust, or if it has a type of Gamma.
+	 * universally robust, if it's trivial or if it has a type of Gamma.
 	 * @param state the robustness: 0 if possibly, 1 if universal
 	 * @return a given String to print
 	 */
 	public String isRobust(int state){
-		String textToPrint;
-		switch (isL()){
+		String textToPrint = "";
+		
+		if(state == 2){
+			if(isL() < 20 && isL() > 0){
+				return "Matica je typu Γ⏌ !";
+			}else if(isL() == 0){
+				return "Matica NIE je typu Γ !";
+			}else{
+				return "Matica je typu ⎾Γ !";
+			}
+		}
+		
+		else if(state == 3){
+			if(isL() == 0){
+				return "Matica NIE je typu Γ !";			
+			}else if(isL() == 14 || isL() == 24){
+				return "Matica je triviálna.!";
+			}else if(isL() % 5 == 0 || isL() == 26 || isL() == 16){
+				return "Dolná matica je triviálna, horná netriviálna. ";
+			}else{
+				return "Matica je netriviálna !";
+			}
+		}
+		
+		else{
+				
+			switch (isL()){
 			case 0:				
 				textToPrint = "Matica nie je typu Γ !";
 				break;
 			case 24:
-				if(state == 3){
-					textToPrint =  "Matica je triviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint =  "Matica je typu ⎾Γ !";
-					break;
-				}
 				if(state == 1){
 					textToPrint =  "Matica JE univerzálne robustná.";	
 					break;
@@ -455,14 +472,6 @@ public class Matrix {
 					break;
 				}
 			case 14:
-				if(state == 3){
-					textToPrint =  "Matica je triviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint =  "Matica je typu Γ⏌ !";
-					break;
-				}
 				if(state == 1){
 					textToPrint =  "Matica JE univerzálne robustná.";	
 					break;
@@ -472,14 +481,6 @@ public class Matrix {
 					break;
 				}
 			case 23:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint =  "Matica je typu ⎾Γ !";
-					break;
-				}
 				if(state == 0){
 					textToPrint =  "Matica NIE je možne robustná.";
 					break;
@@ -489,14 +490,6 @@ public class Matrix {
 					break;
 				}
 			case 13:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint =  "Matica je typu Γ⏌ !";
-					break;
-				}
 				if(state == 0){
 					textToPrint =  "Matica NIE je možne robustná.";
 					break;
@@ -506,14 +499,6 @@ public class Matrix {
 					break;
 				}
 			case 2:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint = "Matica je typu ⎾Γ !";
-					break;
-				}
 				if(state == 0){
 					textToPrint =  "Matica JE možne robustná.";	
 					break;
@@ -523,14 +508,6 @@ public class Matrix {
 					break;
 				}
 			case 1:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint =  "Matica je typu Γ⏌ !";
-					break;
-				}
 				if(state == 0){
 					textToPrint =  "Matica JE možne robustna.";	
 					break;
@@ -540,14 +517,6 @@ public class Matrix {
 					break;
 				}
 			case 22:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint = "Matica je typu ⎾Γ !";
-					break;
-				}
 				if(state == 1){
 					textToPrint =  "Matica JE univerzálne robustná.";	
 					break;
@@ -557,14 +526,6 @@ public class Matrix {
 					break;
 				}
 			case 11:
-				if(state == 3){
-					textToPrint =  "Matica je netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint = "Matica je typu Γ⏌ !";
-					break;
-				}
 				if(state == 1){
 					textToPrint =  "Matica JE univerzálne robustná.";	
 					break;
@@ -573,17 +534,9 @@ public class Matrix {
 					textToPrint =  "Matica JE možne robustná.";	
 					break;
 				}
-			case 15:
-				if(state == 3){
-					textToPrint =  "Matica je *netriviálna.";
-					break;
-				}
-				if(state == 2){
-					textToPrint = "Matica je typu Γ⏌ !";
-					break;
-				}
+				case 15:
 				if(state == 1){
-					textToPrint =  "Matica NIE je univerzálne robustná.";	
+					textToPrint =  "Matica JE je univerzálne robustná.";	
 					break;
 				}
 				else{
@@ -591,14 +544,15 @@ public class Matrix {
 					break;
 				}
 			case 25:
-				if(state == 3){
-					textToPrint =  "Matica je *netriviálna.";
+				if(state == 1){
+					textToPrint =  "Matica JE univerzálne robustná.";	
 					break;
 				}
-				if(state == 2){
-					textToPrint = "Matica je typu ⎾Γ !";
+				else{
+					textToPrint =  "Matica JE možne robustná.";	
 					break;
 				}
+			case 16:
 				if(state == 1){
 					textToPrint =  "Matica NIE je univerzálne robustná.";	
 					break;
@@ -607,44 +561,23 @@ public class Matrix {
 					textToPrint =  "Matica JE možne robustná.";	
 					break;
 				}
-				case 16:
-					if(state == 3){
-						textToPrint =  "Matica je *netriviálna.";
-						break;
-					}
-					if(state == 2){
-						textToPrint = "Matica je typu Γ⏌ !";
-						break;
-					}
-					if(state == 1){
-						textToPrint =  "Matica JE je univerzálne robustná.";	
-						break;
-					}
-					else{
-						textToPrint =  "Matica JE možne robustná.";	
-						break;
-					}
-				case 26:
-					if(state == 3){
-						textToPrint =  "Matica je *netriviálna.";
-						break;
-					}
-					if(state == 2){
-						textToPrint = "Matica je typu ⎾Γ !";
-						break;
-					}
-					if(state == 1){
-						textToPrint =  "Matica JE univerzálne robustná.";	
-						break;
-					}
-					else{
-						textToPrint =  "Matica JE možne robustná.";	
-						break;
-					}
+			case 26:
+				if(state == 1){
+					textToPrint =  "Matica NIE je univerzálne robustná.";	
+					break;
+				}
+				else{
+					textToPrint =  "Matica JE možne robustná.";	
+					break;
+				}			
 			default:
 				textToPrint =  "";
 				break;
+			}
+			
 		}
+		
+		
 		return textToPrint;
 			
 	}

@@ -194,7 +194,7 @@ public class Gui {
 			public void actionPerformed(ActionEvent e) {
 				matrix.initMatrices();
 				new Digraph("Digraf matice dolných hodnôt",
-						matrix, matrix.getLMatrix());				
+						matrix, matrix.getLMatrix());			
 			}
 		});
 		
@@ -203,7 +203,7 @@ public class Gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				matrix.initMatrices();
-				new GraphDrawer("Digraf matice horných hodnôt",
+				new Digraph("Digraf matice horných hodnôt",
 						matrix, matrix.getUMatrix());				
 			}
 		});
@@ -211,7 +211,13 @@ public class Gui {
 		typeButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isGamma.setText(matrix.isRobust(2));
+				try{
+					isGamma.setText(matrix.isRobust(2));
+				}
+				catch(NullPointerException npe){
+					JOptionPane.showMessageDialog(frame , 
+							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+				}
 			}		
 		});		
 		
@@ -231,20 +237,39 @@ public class Gui {
 		isTriviButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isTrivi.setText(matrix.isRobust(3));
+				try{
+					isTrivi.setText(matrix.isRobust(3));
+				}
+				catch(NullPointerException npe){
+					JOptionPane.showMessageDialog(frame , 
+							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+				}
 			}	
 		});
 		
 		possRobustButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isPos.setText(matrix.isPosRobust());					}		
+				try{
+					isPos.setText(matrix.isPosRobust());	
+				}
+				catch(NullPointerException npe){
+					JOptionPane.showMessageDialog(frame , 
+							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+				}		
+			}
 		});
 		
 		uniRobustButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isUni.setText(matrix.isUniRobust());
+				try{
+					isUni.setText(matrix.isUniRobust());
+				}
+				catch(NullPointerException npe){
+					JOptionPane.showMessageDialog(frame , 
+							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+				}
 			}		
 		});				
 	}

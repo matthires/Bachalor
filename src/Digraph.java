@@ -8,8 +8,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 
-
-
+/**
+ * Class for displaying the digraph of matrices.
+ * The nodes are displayed in a row in a special sequence.
+ * @author matty
+ *
+ */
 @SuppressWarnings("serial")
 public class Digraph extends JPanel{			
 	private Matrix mtx;
@@ -94,13 +98,13 @@ public class Digraph extends JPanel{
 	}
 	
 	/**
-	 * Draws the graph to a given frame.
+	 * Draws the digraph of given matrix.
+	 * The nodes are sorted in a special sorting.
 	 */
 	public void paint(Graphics g) {
 		int width = 30;
 		int height = 30; 	
 		g.setColor(Color.black);
-		int count = 0;
 		Node node1, node2;
 					
 		//drawing the nodes with names
@@ -135,14 +139,14 @@ public class Digraph extends JPanel{
 			}
 			//other edges between non-neighbour nodes 
 			else{
-				int wdth = Math.abs(node2.x - node1.x) - 8;
+				int wdth = Math.abs(node2.x - node1.x);
 				
 				if(edge.node1 > edge.node2){
-					g.drawArc(node2.x + 8, node2.y-38, wdth, 50, 0, 180);
-					drawArrow(g, node2.x, node2.y, -3);
+					g.drawArc(node2.x, node2.y-10, wdth, 50, 0, -180);
+					drawArrow(g, node2.x, node2.y, -2);
 				}else{
-					g.drawArc(node1.x + 8, node1.y-38, wdth, 50, 0, 180);
-					drawArrow(g, node2.x, node2.y, 3);
+					g.drawArc(node1.x + 8, node1.y-38, wdth-8, 50, 0, 180);
+					drawArrow(g, node2.x, node2.y, 2);
 				}
 			}
 							
@@ -151,6 +155,19 @@ public class Digraph extends JPanel{
 
 	 }
 	    
+	
+	/**
+	 * Draws arrows to a specific place in a graph to show the direction
+	 * @param g Graphics to draw with
+	 * @param x X coordinate of the node
+	 * @param y Y coordinate of the node
+	 * @param direction direction of the edge:
+	 * 		0 - loop
+	 * 	   -1 - edge between neighbour nodes from right to left
+	 * 		1 - edge between neighbour nodes from left to right
+	 * 	   -2 - edge between non-neighbour nodes from right to left
+	 * 		2 - edge between non-neighbour nodes from left to right
+	 */
 	public void drawArrow(Graphics g, int x, int y,int direction){
 		switch(direction){
 			case 0:
@@ -166,22 +183,13 @@ public class Digraph extends JPanel{
 				g.drawLine(x-15, y+3, x-25, y+6);
 				break;
 			case -2:
-				g.drawLine(x, y+15, x+12, y+18);
-				g.drawLine(x, y+15, x+5, y+28);
+				g.drawLine(x, y+15, x+12, y+23);
+				g.drawLine(x, y+15, x+3, y+28);
 				break;
 			case 2:
-				g.drawLine(x, y+15, x-12, y+18);
-				g.drawLine(x, y+15, x-5, y+28);
-				break;
-			case -3:
-				g.drawLine(x+8, y-15, x+20, y-23);
-				g.drawLine(x+8, y-15, x+11, y-28);
-				break;
-			case 3:
 				g.drawLine(x, y-15, x-12, y-23);
-				g.drawLine(x, y-15, x-3, y-28);
+				g.drawLine(x, y-15, x-5, y-28);
 				break;				
-					
 		}
 	}
 	
