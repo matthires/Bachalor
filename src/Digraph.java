@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.geom.QuadCurve2D;
 import java.util.ArrayList;
 
@@ -80,7 +79,7 @@ public class Digraph extends JPanel{
 		//adding the nodes with its number
 		for(int i = 0;i < dim; i++){
 			String name = Integer.toString(sortedNodes.get(i));
-			this.addNode(name, 80*i+42, 120);			
+			this.addNode(name, 85*i+42, 120);			
 		}
 		
 		//adding the edges between nodes
@@ -106,6 +105,8 @@ public class Digraph extends JPanel{
 		int height = 30; 	
 		g.setColor(Color.black);
 		Node node1, node2;
+		
+		QuadCurve2D q = new QuadCurve2D.Double();
 					
 		//drawing the nodes with names
 		for (Node node : nodes) {
@@ -140,9 +141,11 @@ public class Digraph extends JPanel{
 			//other edges between non-neighbour nodes 
 			else{
 				int wdth = Math.abs(node2.x - node1.x);
+				int hght = Math.abs(edge.node2 - edge.node1)*25;
 				
 				if(edge.node1 > edge.node2){
 					g.drawArc(node2.x, node2.y-10, wdth, 50, 0, -180);
+					//q.setCurve(node2.x, node2.y, wdth/2, hght, node1.x, node1.y);
 					drawArrow(g, node2.x, node2.y, -2);
 				}else{
 					g.drawArc(node1.x + 8, node1.y-38, wdth-8, 50, 0, 180);

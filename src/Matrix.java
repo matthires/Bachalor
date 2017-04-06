@@ -21,10 +21,11 @@ import javax.swing.SwingConstants;
  */
 public class Matrix {	
 		private int dim;
-		int[][] lowerMatrix, upperMatrix;
-		JTextField[][] lMatrix, uMatrix;
-		JLabel panel;
-		JFrame mainFrame;
+		private int[][] lowerMatrix, upperMatrix;
+		private JTextField[][] lMatrix, uMatrix;
+		private JLabel panel;
+		private JFrame mainFrame;
+		private Gui gui;
 		
 		/**
 		 * Displays 2 matrices in form of 2D array of text fields on the main frame.
@@ -33,7 +34,8 @@ public class Matrix {
 		 * @param dimension Dimension of the matrices
 		 * @param panel Label to display the matrices
 		 */
-	public  Matrix(JFrame frame, int dimension, JLabel panel){  
+	public  Matrix(Gui gui, JFrame frame, int dimension, JLabel panel){  
+		this.gui = gui;
 		mainFrame = frame;  //the main frame -for updating the screen 
         this.panel = panel; //panel to display the matrix on
 		lMatrix = new JTextField [dimension][dimension]; //array to store the lower value matrix
@@ -49,7 +51,7 @@ public class Matrix {
         for(int i = 0;i < dim;i++){
         	for(int j = 0;j < dim;j++){
 	        	JTextField textField = new JTextField("0", 10);
-	            textField.setBounds(80 + j * 35, 250 + i * 35, 30, 30);
+	            textField.setBounds(90 + j * 35, 240 + i * 35, 30, 30);
 	            lMatrix[i][j] = textField;
             	textField.setHorizontalAlignment(SwingConstants.CENTER);
             	textField.setFont(new Font("San-Serif", Font.BOLD, 16));
@@ -101,7 +103,7 @@ public class Matrix {
         for(int i = 0;i < dim;i++){
         	for(int j = 0;j < dim;j++){
 	        	JTextField textField = new JTextField("0", 10);
-	            textField.setBounds(480 + j * 35, 250 + i * 35, 30, 30);
+	            textField.setBounds(490 + j * 35, 240 + i * 35, 30, 30);
 	            uMatrix[i][j] = textField;
             	textField.setHorizontalAlignment(SwingConstants.CENTER);
             	textField.setFont(new Font("San-Serif", Font.BOLD, 16));
@@ -179,14 +181,16 @@ public class Matrix {
 	 * an other one for the lower values.
 	 * Also validates the input - it must be binary, must be a number. Whether it isn't, 
 	 * an alert-box shows up to note the user to fill in valid, binary data. 
+	 * @throws IsNotGreaterException 
 	 */
-	public boolean initMatrices(){
+	public boolean initMatrices() throws IsNotGreaterException{
 	    int value;
 	  
 	  	lowerMatrix = new int[dim][dim];
 	  	upperMatrix = new int[dim][dim];
 	  
 	  	try{
+	  		gui.showMatrices(dim);
 			for (int row = 0; row < dim; row++) {
 				for (int col = 0; col < dim; col++) {
 					value = Integer.parseInt(lMatrix[row][col].getText());
@@ -198,9 +202,7 @@ public class Matrix {
 				for (int col = 0; col < dim; col++) {
 					value = Integer.parseInt(uMatrix[row][col].getText());
 					if(value < getValueOf(lowerMatrix, row, col)){
-						JOptionPane.showMessageDialog(mainFrame , 
-								"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
-						return false;
+						throw new IsNotGreaterException();
 					}
 					else{
 						setEdge(upperMatrix, row, col, value);
@@ -216,6 +218,8 @@ public class Matrix {
 	  	return false;
 	}
 	
+
+	
 	
 	/**
 	 * Checks if the matrices are Monge matrices.
@@ -230,8 +234,9 @@ public class Matrix {
 	 * @param lowerMatrix the lower-value matrix 
 	 * @param upperMatrix the upper-value matrix
 	 * @return "The matrix is Monge" if  true, "The matrix is NOT Monge" if false
+	 * @throws IsNotGreaterException 
 	 */
-	 public String isMonge() throws NullPointerException{
+	 public String isMonge() throws NullPointerException, IsNotGreaterException{
 	    int i,j,k,l;
 	    if(initMatrices()){
 		   if(lowerMatrix == null || upperMatrix == null){
@@ -262,34 +267,6 @@ public class Matrix {
 	 }
 	
 	
-	/**
-	 * Returns a String, whether the matrix is universally robust or not,
-	 * depending on the return value of the isUni method, 
-	 * which checks for universal robustness.
-	 * 
-	 * @see isRobust()
-	 * 
-	 * @return String "The matrix is universally robust" if it is /
-	 *  "is NOT" if it isn't universally robust
-	 */
-	public String isUniRobust(){
-		return isRobust(1);
-	}
-	
-	
-	/**
-	 * Returns a String, whether the matrix is possibly robust or not,
-	 * depending on the return value of the isPos method, 
-	 * which checks for possible robustness.
-	 * 
-	 * @see isRobust()
-	 * 
-	 * @return String "The matrix is possibly robust" if it is /
-	 *  "is NOT" if it isn't possibly robust
-	 */
-	public String isPosRobust(){
-		return isRobust(0);
-	}	
 	
 	/**
 	 * Getter for the lower value matrix.
@@ -317,15 +294,27 @@ public class Matrix {
 	 *  the bottom'n'right L - the Gamma_ type.
 	 * 
 	 * @return the state of the robustness:
-	 * 		-1 if the matrix has a type of Gamma,but it has no loop,
-	 * 		 0 if one of the matrices has a type of Gamma' with a loop
-	 * 		 1 if one of the matrices has a type of Gamma_ with a loop
-	 * 		 2 if each matrices have a type of Gamma' with a loop
-	 *	 	 3 if each matrices have a type of Gamma_ with a loop
-	 *  	 4 if none of the matrices have a type of Gamma			
+	 * 		 0 - at least one of the matrices don't have a type of Gamma
+	 * 		 1 - one of the matrices has a type of Gamma_ with a loop and both are non-trivial
+	 * 		11 - each matrices are non-trivial and have a type of Gamma_ with a loop
+	 * 		 2 - one of the matrices has a type of Gamma' with a loop and both are non-trivial
+	 * 		22 - each matrices are non-trivial and have a type of Gamma' with a loop
+	 * 		13 - none of the matrices are robust but have a type of Gamma_
+	 * 		23 - none of the matrices are robust but have a type of Gamma'
+	 * 		14 - each matrices are trivial and have a type of Gamma_
+	 * 		24 - each matrices are trivial and have a type of Gamma'
+	 * 		15 - lower matrix is trivial, the upper non-trivial,
+	 * 			  both have a type of Gamma_ and are robust 
+	 * 		25 - lower matrix is trivial, the upper non-trivial,
+	 * 			  both have a type of Gamma' and are robust 
+	 * 		16 - lower matrix is trivial, the upper non-trivial,
+	 * 			  both have a type of Gamma_ but,the upper matrix is not robust
+	 * 		26 - lower matrix is trivial, the upper non-trivial,
+	 * 			  both have a type of Gamma' but,the upper matrix is not robust
+	 * 			
 	 * 
 	 */
-	public int isL() throws NullPointerException{
+	public int isL() throws NullPointerException, IsNotGreaterException{
 		int state = -1;
 		int edge = -1;
 		if (initMatrices()){
@@ -383,32 +372,40 @@ public class Matrix {
 							state = 10;
 						}
 					}
+					//checking the lower Gamma type	- the lower matrix is trivial, the upper non-trivial				
 					if(state == 1 || state == 11 || state == 13 || state == 10 || state == 15 || state == 16){
+						//checks if there are other 1s out of the Gamma
 						if((getValueOf(lowerMatrix, i, j) == 1  ||
 								getValueOf(upperMatrix, i, j) == 1) && ((j>edge && i>=0) || (i>edge && j>=0))){
 							state = 0;
 						}
+						//the upper matrix has a loop
 						if(state == 1 && getValueOf(upperMatrix, i, j) == 1){
 							state = 15;
 						}
 						if(state == 10 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
+							//when they are both non trivial with no loop
 							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i)==1){
 								state = 13;
-							}
+							}							
 							else{
 								state = 16;
 							}
 						}
 					}
+					//checking the upper Gamma type - the lower matrix is trivial, the upper non-trivial		
 					if(state == 2 || state == 22 || state == 23 || state == 20 || state == 25 || state == 26){
+						//checks if there are other 1s out of the Gamma
 						if((getValueOf(lowerMatrix, i, j) == 1  ||
 								getValueOf(upperMatrix, i, j) == 1) && (i > edge &&j > edge) ){
 							state = 0;
 						}
+						//the upper matrix has a loop
 						if(state == 2 && getValueOf(upperMatrix, i, j) == 1){
 							state = 25;
 						}
 						if(state == 20 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
+							//when they are both non trivial and no loop
 							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i) == 1){
 								state = 23;
 							}
@@ -428,146 +425,152 @@ public class Matrix {
 	/**
 	 * Decides the state of the chosen matrix, whether it is possibly,
 	 * universally robust, if it's trivial or if it has a type of Gamma.
-	 * @param state the robustness: 0 if possibly, 1 if universal
+	 * @param state the option we want to know: 
+	 * 		0 - possibly robustness,
+	 * 		1 - universal robustness
+	 * 		2 - has type of Gamma or not
+	 * 		3 - triviality
 	 * @return a given String to print
+	 * @throws IsNotGreaterException 
+	 * @throws NullPointerException 
 	 */
-	public String isRobust(int state){
+	public String isRobust(int state) throws NullPointerException, IsNotGreaterException{
 		String textToPrint = "";
-		
 		if(state == 2){
 			if(isL() < 20 && isL() > 0){
-				return "Matica je typu Γ⏌ !";
+				return "Matica Aᴹ je typu Γ⏌ !";
 			}else if(isL() == 0){
-				return "Matica NIE je typu Γ !";
+				return "Matica Aᴹ NIE je typu Γ !";
 			}else{
-				return "Matica je typu ⎾Γ !";
+				return "Matica Aᴹ je typu ⎾Γ !";
 			}
 		}
 		
 		else if(state == 3){
 			if(isL() == 0){
-				return "Matica NIE je typu Γ !";			
+				return "Matica Aᴹ NIE je typu Γ !";			
 			}else if(isL() == 14 || isL() == 24){
 				return "Matica je triviálna.!";
 			}else if(isL() % 5 == 0 || isL() == 26 || isL() == 16){
-				return "Dolná matica je triviálna, horná netriviálna. ";
+				return "Matica A̲ je triviálna, matica A̅ je netriviálna. ";
 			}else{
-				return "Matica je netriviálna !";
+				return "Matica Aᴹ je netriviálna !";
 			}
 		}
+			
 		
 		else{
 				
 			switch (isL()){
 			case 0:				
-				textToPrint = "Matica nie je typu Γ !";
+				textToPrint = "Matica Aᴹ nie je typu Γ !";
 				break;
 			case 24:
 				if(state == 1){
-					textToPrint =  "Matica JE univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 14:
 				if(state == 1){
-					textToPrint =  "Matica JE univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 23:
 				if(state == 0){
-					textToPrint =  "Matica NIE je možne robustná.";
+					textToPrint =  "Matica Aᴹ nie je možne robustná.";
 					break;
 				}
 				else{
-					textToPrint =  "Matica NIE je univerzálne robustná.";
+					textToPrint =  "Matica  Aᴹ nie je univerzálne robustná.";
 					break;
 				}
 			case 13:
 				if(state == 0){
-					textToPrint =  "Matica NIE je možne robustná.";
+					textToPrint =  "Matica Aᴹ nie je možne robustná.";
 					break;
 				}
 				else{
-					textToPrint =  "Matica NIE je univerzálne robustná.";
+					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
 					break;
 				}
 			case 2:
 				if(state == 0){
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica NIE je univerzálne robustná.";
+					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
 					break;
 				}
 			case 1:
 				if(state == 0){
-					textToPrint =  "Matica JE možne robustna.";	
+					textToPrint =  "Matica Aᴹ je možne robustna.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica NIE je univerzálne robustná.";
+					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
 					break;
 				}
 			case 22:
 				if(state == 1){
-					textToPrint =  "Matica JE univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 11:
 				if(state == 1){
-					textToPrint =  "Matica JE univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 				case 15:
 				if(state == 1){
-					textToPrint =  "Matica JE je univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 25:
 				if(state == 1){
-					textToPrint =  "Matica JE univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 16:
 				if(state == 1){
-					textToPrint =  "Matica NIE je univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}
 			case 26:
 				if(state == 1){
-					textToPrint =  "Matica NIE je univerzálne robustná.";	
+					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";	
 					break;
 				}
 				else{
-					textToPrint =  "Matica JE možne robustná.";	
+					textToPrint =  "Matica Aᴹ je možne robustná.";	
 					break;
 				}			
 			default:
@@ -577,12 +580,11 @@ public class Matrix {
 			
 		}
 		
-		
 		return textToPrint;
 			
 	}
 	
-
+	
 	/**
 	 * Returns the set up dimension of the matrix.
 	 * @return dimension of the matrix
