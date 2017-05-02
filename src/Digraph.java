@@ -22,15 +22,17 @@ public class Digraph extends JPanel{
 	private ArrayList<Edge> edges;
 	
     public Digraph(String title, Matrix mtx, int[][] matrix) throws NullPointerException{
+    	
+		this.mtx = mtx;
+		this.matrix = matrix;
+		dim = mtx.getDimension();	
+		
     	JFrame frame = new JFrame(title);
 		frame.add(this);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(600,300);
+		frame.setSize(dim*100,300);
 		frame.setVisible(true);			
-		
-		this.mtx = mtx;
-		this.matrix = matrix;
-		dim = mtx.getDimension();		
+			
 		
 		nodes = new ArrayList<Node>();
 		edges = new ArrayList<Edge>();
@@ -79,7 +81,7 @@ public class Digraph extends JPanel{
 		//adding the nodes with its number
 		for(int i = 0;i < dim; i++){
 			String name = Integer.toString(sortedNodes.get(i));
-			this.addNode(name, 85*i+42, 120);			
+			this.addNode(name, 100*i+50, 120);			
 		}
 		
 		//adding the edges between nodes
@@ -106,7 +108,7 @@ public class Digraph extends JPanel{
 		g.setColor(Color.black);
 		Node node1, node2;
 		
-		QuadCurve2D q = new QuadCurve2D.Double();
+		QuadCurve2D q = new QuadCurve2D.Float();
 					
 		//drawing the nodes with names
 		for (Node node : nodes) {
@@ -118,7 +120,7 @@ public class Digraph extends JPanel{
 		}
 			
 		for (Edge edge : edges) {
-			//saving the indexes of the nodes to search for their value 
+
 			node1 = nodes.get(edge.node1);
 			node2 = nodes.get(edge.node2);
 			
@@ -140,15 +142,43 @@ public class Digraph extends JPanel{
 			}
 			//other edges between non-neighbour nodes 
 			else{
+				int hght = 0, y1 =0, y2 = 0; 
 				int wdth = Math.abs(node2.x - node1.x);
-				int hght = Math.abs(edge.node2 - edge.node1)*25;
+				int dist = Math.abs(edge.node2 - edge.node1);
+				switch(dist){
+					case 2:
+						hght = 50;
+						y1 = node2.y-10;
+						y2 = node1.y-38;
+						break;
+					case 3:
+						hght = 60;
+						y1 = node2.y-15;
+						y2 = node1.y-43;
+						break;
+					case 4:
+						hght = 70;
+						y1 = node2.y-20;
+						y2 = node1.y-48;
+						break;
+					case 5:
+						hght = 80;
+						y1 = node2.y-25;
+						y2 = node1.y-53;
+						break;
+					case 6:
+						hght = 90;
+						y1 = node2.y-30;
+						y2 = node1.y-58;
+						break;
+				}
 				
 				if(edge.node1 > edge.node2){
-					g.drawArc(node2.x, node2.y-10, wdth, 50, 0, -180);
+					g.drawArc(node2.x, y1, wdth, hght, 0, -180);
 					//q.setCurve(node2.x, node2.y, wdth/2, hght, node1.x, node1.y);
-					drawArrow(g, node2.x, node2.y, -2);
+					drawArrow(g, node2.x-2, node2.y, -2);
 				}else{
-					g.drawArc(node1.x + 8, node1.y-38, wdth-8, 50, 0, 180);
+					g.drawArc(node1.x + 8, y2, wdth-8, hght, 0, 180);
 					drawArrow(g, node2.x, node2.y, 2);
 				}
 			}
@@ -186,11 +216,11 @@ public class Digraph extends JPanel{
 				g.drawLine(x-15, y+3, x-25, y+6);
 				break;
 			case -2:
-				g.drawLine(x, y+15, x+12, y+23);
+				g.drawLine(x, y+15, x+14, y+20);
 				g.drawLine(x, y+15, x+3, y+28);
 				break;
 			case 2:
-				g.drawLine(x, y-15, x-12, y-23);
+				g.drawLine(x, y-15, x-15, y-20);
 				g.drawLine(x, y-15, x-5, y-28);
 				break;				
 		}

@@ -20,12 +20,12 @@ import javax.swing.SwingConstants;
  *
  */
 public class Gui {
-	 private static JLabel title, selectDimension, notes, isGamma,
-	 		isMon, isTrivi, isUni, isPos, upperMatrix, lowerMatrix, lMatrix, uMatrix;
+	 private static JLabel title, author, selectDimension, notes, isGamma, isMon, 
+	 	isTrivi, isUni, isPos, upperMatrix, lowerMatrix, lMatrix, uMatrix;
 	 private static JFrame frame;
 	 private static JLabel panel, matrixLayout;
 	 private static JButton mongeButton, uniRobustButton, typeButton, isTriviButton,
-	 	possRobustButton, chooseButton, lGraphBtn, uGraphBtn, resetBtn;
+	 	possRobustButton, lGraphBtn, uGraphBtn, resetBtn;
 	 private String[] dims = {"1", "2", "3", "4", "5", "6", "7"};
 	 private JComboBox<?> dimensions;
 	 private Matrix matrix = null;
@@ -60,10 +60,17 @@ public class Gui {
                 
 		title = new JLabel("Možná a univerzálna"
 				+ " robustnosť mongeovských fuzzy matíc");
-		title.setFont(new Font("San-Serif", Font.BOLD, 20));
+		title.setFont(new Font("San-Serif", Font.BOLD, 22));
 		title.setForeground(Color.white);
 		title.setSize(800, 30);
-		title.setLocation(60, 20);
+		title.setLocation(25, 40);
+		
+		author = new JLabel("Máté Hireš, 2017");
+		author.setForeground(Color.white);
+		author.setFont(new Font("San-Serif", Font.BOLD, 16));
+		author.setSize(300, 30);
+		author.setLocation(640, 730);
+		
 		
 		selectDimension = new JLabel("Veľkosť matice:");
 		selectDimension.setForeground(Color.white);
@@ -84,7 +91,8 @@ public class Gui {
 		uMatrix.setVisible(false);
 		
 		//some text to note the user 
-		notes = new JLabel(" Zvoľte veľkosť matice a stlačte tlačítko \"Zvoliť\" ", SwingConstants.CENTER);
+		notes = new JLabel(" Zvoľte veľkosť matice kliknutím na combobox "
+				, SwingConstants.CENTER);
 		notes.setOpaque(true);
 		notes.setBackground(Color.white);
 		notes.setFont(new Font("San-Serif", Font.BOLD, 16));
@@ -104,78 +112,80 @@ public class Gui {
 		upperMatrix.setSize(300, 30);
 		upperMatrix.setLocation(490, 170);
 		
-		chooseButton = new JButton("Zvoliť");
-		chooseButton.setSize(80, 30);
-		chooseButton.setLocation(260, 100);		
-
 	    resetBtn = new JButton("Vynulovať");
 	    resetBtn.setSize(120, 30);
 	    resetBtn.setLocation(620, 100);
 		
 		typeButton = new JButton("Overiť typ matice");
-	    typeButton.setSize(240, 30);
-	    typeButton.setLocation(30, 500);
+	    typeButton.setSize(270, 45);
+	    typeButton.setLocation(10, 505);
 				
-	    mongeButton = new JButton("Zistiť mongeovskosť");
-	    mongeButton.setSize(240, 30);
-	    mongeButton.setLocation(30, 550);	
+	    /*mongeButton = new JButton("Overiť mongeovskosť");
+	    mongeButton.setSize(270, 30);
+	    mongeButton.setLocation(10, 550);*/	
 	    
-	    isTriviButton = new JButton("Overiť trivialnosť matice");
-	    isTriviButton.setSize(240, 30);
-	    isTriviButton.setLocation(30, 600);
+	    isTriviButton = new JButton("<html> <div style='text-align: center;'> "
+	    		+ "Overiť triviálnosť typu 𝚪  <br> matíc A̲, A̅ </div> </html>");
+	    isTriviButton.setHorizontalAlignment(SwingConstants.CENTER);
+	    isTriviButton.setSize(270, 45);
+	    isTriviButton.setLocation(10, 575);
 	    
-	    possRobustButton = new JButton("Zistiť možnú robstnosť");
-	    possRobustButton.setSize(240, 30);
-	    possRobustButton.setLocation(30, 650);
+	    possRobustButton = new JButton("<html> <div style='text-align: center;'> "
+	    		+ "Overiť možnú robsutnosť <br> matice Aᴹ </div> </html> ");
+	    possRobustButton.setHorizontalAlignment(SwingConstants.CENTER);
+	    possRobustButton.setSize(270, 45);
+	    possRobustButton.setLocation(10, 630);
 	    
-	    uniRobustButton = new JButton("Zistiť univerzálnu robustnosť");
-	    uniRobustButton.setSize(240, 30);
-	    uniRobustButton.setLocation(30, 700);
+	    uniRobustButton = new JButton("<html> <div style='text-align: center;'> "
+	    		+ "Overiť univerzálnu robustnosť <br> matice Aᴹ </div> </html>");
+	    uniRobustButton.setHorizontalAlignment(SwingConstants.CENTER);
+	    uniRobustButton.setSize(270, 45);
+	    uniRobustButton.setLocation(10, 685);
 	    
-	    lGraphBtn= new JButton("Ukáž digraf");
-	    lGraphBtn.setSize(120, 30);
-	    lGraphBtn.setLocation(150, 200);
+	    lGraphBtn= new JButton("Ukáž digraf matice A̲");
+	    lGraphBtn.setSize(180, 30);
+	    lGraphBtn.setLocation(100, 200);
 	    lGraphBtn.setVisible(false);
 	    
-	    uGraphBtn= new JButton("Ukáž digraf");
-	    uGraphBtn.setSize(120, 30);
-	    uGraphBtn.setLocation(550, 200);
+	    uGraphBtn= new JButton("Ukáž digraf matice A̅");
+	    uGraphBtn.setSize(180, 30);
+	    uGraphBtn.setLocation(500, 200);
 	    uGraphBtn.setVisible(false);
 	    
 		isGamma = new JLabel("");
 		isGamma.setFont(new Font("San-Serif", Font.BOLD, 14));
 		isGamma.setOpaque(true);
 		isGamma.setBackground(Color.white);
-		isGamma.setSize(450, 30);
-		isGamma.setLocation(280, 500);
+		isGamma.setSize(470, 45);
+		isGamma.setLocation(300, 490);
 	    
 		isMon = new JLabel("");
 		isMon.setFont(new Font("San-Serif", Font.BOLD, 14));
 		isMon.setOpaque(true);
 		isMon.setBackground(Color.white);
-		isMon.setSize(450, 30);
-		isMon.setLocation(280, 550);
+		isMon.setSize(470, 45);
+		isMon.setLocation(300, 520);
 		
 		isTrivi = new JLabel("");
 		isTrivi.setFont(new Font("San-Serif", Font.BOLD, 14));
 		isTrivi.setOpaque(true);
 		isTrivi.setBackground(Color.white);
-		isTrivi.setSize(450, 30);
-		isTrivi.setLocation(280, 600);
+		isTrivi.setSize(470, 45);
+		isTrivi.setLocation(300, 575);
 		
 		isPos = new JLabel("");
 		isPos.setFont(new Font("San-Serif", Font.BOLD, 14));
 		isPos.setOpaque(true);
 		isPos.setBackground(Color.white);
-		isPos.setSize(450, 30);
-		isPos.setLocation(280, 650);
+		isPos.setSize(470, 45);
+		isPos.setLocation(300, 630);
 	    		
 		isUni = new JLabel("");
 		isUni.setFont(new Font("San-Serif", Font.BOLD, 14));
 		isUni.setOpaque(true);
 		isUni.setBackground(Color.white);
-		isUni.setSize(450, 30);
-		isUni.setLocation(280, 700);
+		isUni.setSize(470, 45);
+		isUni.setLocation(300, 685);
 	    
 		dimensions  = new JComboBox<Object>(dims);
 	    dimensions.setSize(50, 30);
@@ -187,19 +197,17 @@ public class Gui {
 		frame.setVisible(true);
 		frame.setContentPane(panel);
 		
-		
-		chooseButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String selectedDim = dimensions.getSelectedItem().toString();	
+		dimensions.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	String selectedDim = dimensions.getSelectedItem().toString();	
 				dim = Integer.parseInt(selectedDim);	
 				showMatrices(dim);
 				reset();				
 				lGraphBtn.setVisible(true);
 				uGraphBtn.setVisible(true);
-			}		
+		    }
 		});
-		
+				
 		resetBtn.addActionListener(new ActionListener() {
 			
 			@Override
@@ -214,11 +222,12 @@ public class Gui {
 			public void actionPerformed(ActionEvent e) {
 				try{
 					matrix.initMatrices();
-					new Digraph("Digraf matice dolných hodnôt",
+					new Digraph("Digraf matice A̲",
 							matrix, matrix.getLMatrix());			
 				}catch(IsNotGreaterException isge){
 				JOptionPane.showMessageDialog(frame , 
-						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+					"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+					+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}	
 			}
 		});
@@ -229,11 +238,12 @@ public class Gui {
 			public void actionPerformed(ActionEvent e) {
 				try{
 					matrix.initMatrices();
-					new Digraph("Digraf matice horných hodnôt",
+					new Digraph("Digraf matice A̅",
 						matrix, matrix.getUMatrix());	
 				}catch(IsNotGreaterException isge){
 				JOptionPane.showMessageDialog(frame , 
-						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+					"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+					+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}				
 			}
 		});
@@ -242,46 +252,53 @@ public class Gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
-					isGamma.setText(matrix.isRobust(2));
+					matrix.initMatrices();
+					isGamma.setText(matrix.isGama());
+					isMon.setText(matrix.isMonge());
 				}
 				catch(NullPointerException npe){
 					JOptionPane.showMessageDialog(frame , 
-							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}catch(IsNotGreaterException isge){
 					JOptionPane.showMessageDialog(frame , 
-							"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+						+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 			  	}	
 			}		
 		});		
 		
-		mongeButton.addActionListener(new ActionListener(){
+		/*mongeButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
+					matrix.initMatrices();
 					isMon.setText(matrix.isMonge());					
 				}
 				catch(NullPointerException npe){
 					JOptionPane.showMessageDialog(frame , 
-							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}catch(IsNotGreaterException isge){
 					JOptionPane.showMessageDialog(frame , 
-							"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+						+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 			  	}	
 			}		
-		});	
+		});	*/
 		
 		isTriviButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
-					isTrivi.setText(matrix.isRobust(3));
+					matrix.initMatrices();
+					isTrivi.setText(matrix.isTrivial());
 				}
 				catch(NullPointerException npe){
 					JOptionPane.showMessageDialog(frame , 
-							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}catch(IsNotGreaterException isge){
 					JOptionPane.showMessageDialog(frame , 
-							"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+						+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 			  	}	
 			}	
 		});
@@ -290,14 +307,16 @@ public class Gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
-					isPos.setText(matrix.isRobust(0));	
+					matrix.initMatrices();
+					isPos.setText(matrix.isPosRobust());	
 				}
 				catch(NullPointerException npe){
 					JOptionPane.showMessageDialog(frame , 
-							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}catch(IsNotGreaterException isge){
 					JOptionPane.showMessageDialog(frame , 
-							"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako "
+						+ "prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 			  	}		
 			}
 		});
@@ -306,17 +325,20 @@ public class Gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try{
-					isUni.setText(matrix.isRobust(1));
+					matrix.initMatrices();
+					isUni.setText(matrix.isUniRobust());
 				}
 				catch(NullPointerException npe){
 					JOptionPane.showMessageDialog(frame , 
-							"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Matice musia byť inicializované!","CHYBA!",JOptionPane.ERROR_MESSAGE);
 				}catch(IsNotGreaterException isge){
 					JOptionPane.showMessageDialog(frame , 
-							"Prvky hornej matice musia byt väčšie nanajvyš rovné ako prvky dolnej matice!","CHYBA!",JOptionPane.ERROR_MESSAGE);
+						"Prvky hornej matice musia byt väčšie nanajvyš rovné ako"
+						+ " prvky dolnej matice!", "CHYBA!",JOptionPane.ERROR_MESSAGE);
 			  	}	
 			}		
-		});				
+		});			
+		
 	}
 
 	/**
@@ -329,7 +351,8 @@ public class Gui {
 		isPos.setText("");
 		isTrivi.setText("");
 		isGamma.setText("");
-		notes.setText("Kliknutím na danú pozíciu zmeníte prvky matice z 1 na 0 a opačne");
+		notes.setText("Kliknutím na danú pozíciu zmeníte prvky "
+				+ "matice z 1 na 0 a opačne");
 	}
 	
 	/**
@@ -348,13 +371,13 @@ public class Gui {
 	 */
 	public void setPanelContents(){		
 	    panel.add(title);
+	    panel.add(author);
 	    panel.add(matrixLayout);
 	    panel.add(uMatrix);
 	    panel.add(lMatrix);
 	    panel.add(typeButton);
-		panel.add(mongeButton);
+		//panel.add(mongeButton);
 		panel.add(isTriviButton);
-		panel.add(chooseButton);
 		panel.add(possRobustButton);
 		panel.add(uniRobustButton);
 		panel.add(selectDimension);

@@ -9,10 +9,10 @@ import javax.swing.SwingConstants;
 
 
 /**
- * Own class/type to represent the matrix.
+ * Represents an interval matrix and operations with matrices..
  * When the constructor is called, it displays
  * a 2D array (of chosen dimension) of text fields on the main frame.
- * To initialize the matrix or matrices, the class also creates a 
+ * To initialise the matrix or matrices, the class also creates a 
  * new 2D array of integers where it stores the values filled in the text fields.
  * 
  * 
@@ -23,7 +23,6 @@ public class Matrix {
 		private int dim;
 		private int[][] lowerMatrix, upperMatrix;
 		private JTextField[][] lMatrix, uMatrix;
-		private JLabel panel;
 		private JFrame mainFrame;
 		private Gui gui;
 		
@@ -37,7 +36,6 @@ public class Matrix {
 	public  Matrix(Gui gui, JFrame frame, int dimension, JLabel panel){  
 		this.gui = gui;
 		mainFrame = frame;  //the main frame -for updating the screen 
-        this.panel = panel; //panel to display the matrix on
 		lMatrix = new JTextField [dimension][dimension]; //array to store the lower value matrix
 		uMatrix = new JTextField [dimension][dimension]; //array to store the upper value matrix
 		dim = dimension; //dimension of the matrix
@@ -179,11 +177,13 @@ public class Matrix {
 	 * Initialises the 2 matrices what the user filled to have access to the data.
 	 * Creates new 2D arrays to store the values to them. One for the upper values, 
 	 * an other one for the lower values.
-	 * Also validates the input - it must be binary, must be a number. Whether it isn't, 
-	 * an alert-box shows up to note the user to fill in valid, binary data. 
+	 * Also checks all the operations needed (type, triviality, robustness) and 
+	 * validates the input - if the upper value is greater than the lower.
+	 * Whether it isn't, an alert-box shows up to note the user to fill in valid data. 
+	 * 
 	 * @throws IsNotGreaterException 
 	 */
-	public boolean initMatrices() throws IsNotGreaterException{
+	public boolean initMatrices()  throws NullPointerException, IsNotGreaterException{
 	    int value;
 	  
 	  	lowerMatrix = new int[dim][dim];
@@ -195,6 +195,7 @@ public class Matrix {
 				for (int col = 0; col < dim; col++) {
 					value = Integer.parseInt(lMatrix[row][col].getText());
 					setEdge(lowerMatrix, row, col, value);
+										
 				}
 			}
 			
@@ -209,6 +210,7 @@ public class Matrix {
 					}					
 				}
 			}	
+			checkProperties();
 			return true;
 	  	}
 		catch(NullPointerException npe){
@@ -221,7 +223,8 @@ public class Matrix {
 
 	
 	
-	/**
+	
+	 /**
 	 * Checks if the matrices are Monge matrices.
 	 * The principle is:
 	 * The program checks, whether for all i,j,k,l such that:
@@ -235,8 +238,9 @@ public class Matrix {
 	 * @param upperMatrix the upper-value matrix
 	 * @return "The matrix is Monge" if  true, "The matrix is NOT Monge" if false
 	 * @throws IsNotGreaterException 
+	 * @deprecated
 	 */
-	 public String isMonge() throws NullPointerException, IsNotGreaterException{
+	 public String isMon() throws NullPointerException, IsNotGreaterException{
 	    int i,j,k,l;
 	    if(initMatrices()){
 		   if(lowerMatrix == null || upperMatrix == null){
@@ -248,20 +252,20 @@ public class Matrix {
 					 for(k=i+1;k<dim;k++){
 						 for(l=j+1;l<dim;l++){
 							 if(Math.min(getValueOf(lowerMatrix, i, j),getValueOf(lowerMatrix, k, l))
-								 > Math.min(getValueOf(lowerMatrix, i, l),getValueOf(lowerMatrix, k, j))
-								 || Math.min(getValueOf(upperMatrix, i, j),getValueOf(upperMatrix, k, l))
-								 > Math.min(getValueOf(upperMatrix, i, l),getValueOf(upperMatrix, k, j))){
-									 isMonge = false;
-									 break;
+							 > Math.min(getValueOf(lowerMatrix, i, l),getValueOf(lowerMatrix, k, j))
+							 || Math.min(getValueOf(upperMatrix, i, j),getValueOf(upperMatrix, k, l))
+							 > Math.min(getValueOf(upperMatrix, i, l),getValueOf(upperMatrix, k, j))){
+								 isMonge = false;
+								 break;
 							 }
 						 }
 					 }
 				 }
 			 }
 			 if(isMonge){
-				 return " Matica JE mongeovská.";
+				 return " Matica je mongeovská.";
 			 }
-			 else return " Matica NIE je mongeovská.";
+			 else return " Matica nie je mongeovská.";
 	    }
 	    return "";
 	 }
@@ -284,305 +288,256 @@ public class Matrix {
 		return upperMatrix;
 	}
 	
-	
+		
+		protected int edge; //the position of the 𝚪, the edge of the L
+		//holds a value to represent the triviality of the interval matrix
+		//0 if both trivial, 1 if the lower is trivial, 2 if both re non-trivial
+		protected int trivial; 
+		protected int state; //holds a value for robustness
+		//0-both matrices has a type of 𝚪, 1- only the lower matrix, 2- non of the matrices
+		protected int gamma; 
+		protected int temp; //value to save the original row/column where the first 1 was found
+		
 	/**
 	 * Checks whether the given interval matrix is possibly 
 	 * or universally robust or if it has a type of Gamma.
-	 * The principle is in the bachelor thesis
-	 * There are two *types* of possibilities:
-	 *  the top'n'left L - the Gamma' type,
-	 *  the bottom'n'right L - the Gamma_ type.
-	 * 
-	 * @return the state of the robustness:
-	 * 		 0 - at least one of the matrices don't have a type of Gamma
-	 * 		 1 - one of the matrices has a type of Gamma_ with a loop and both are non-trivial
-	 * 		11 - each matrices are non-trivial and have a type of Gamma_ with a loop
-	 * 		 2 - one of the matrices has a type of Gamma' with a loop and both are non-trivial
-	 * 		22 - each matrices are non-trivial and have a type of Gamma' with a loop
-	 * 		13 - none of the matrices are robust but have a type of Gamma_
-	 * 		23 - none of the matrices are robust but have a type of Gamma'
-	 * 		14 - each matrices are trivial and have a type of Gamma_
-	 * 		24 - each matrices are trivial and have a type of Gamma'
-	 * 		15 - lower matrix is trivial, the upper non-trivial,
-	 * 			  both have a type of Gamma_ and are robust 
-	 * 		25 - lower matrix is trivial, the upper non-trivial,
-	 * 			  both have a type of Gamma' and are robust 
-	 * 		16 - lower matrix is trivial, the upper non-trivial,
-	 * 			  both have a type of Gamma_ but,the upper matrix is not robust
-	 * 		26 - lower matrix is trivial, the upper non-trivial,
-	 * 			  both have a type of Gamma' but,the upper matrix is not robust
-	 * 			
-	 * 
-	 */
-	public int isL() throws NullPointerException, IsNotGreaterException{
-		int state = -1;
-		int edge = -1;
-		if (initMatrices()){
-			for(int i = 0; i < dim; i++){
-				for(int j = 0; j < dim; j++){	
-					if(edge < 0){
-						//searching for 1s
-						if(getValueOf(upperMatrix, i, j) == 1 || getValueOf(upperMatrix, j, i) == 1){
-							//checking for the upper L with loop
+	 * It validates the data via method {@link #validate(int row, int col)}
+	 * The principle is in the bachelor thesis.
+	 * There are two *types* of possibilities of type:
+	 *  the top'n'left L - the ⎾𝚪 type,
+	 *  the bottom'n'right L - the 𝚪⏌ type.
+	 *  
+	 *  Saves the position of 𝜸 to the variable {@link #edge},
+	 *  The variable {@link #gamma} is representing the type of matrices:
+	 *  - 0: both matrices have a type 𝚪
+	 *  - 1: A̅ doesn't have a type 𝚪
+	 *  - 2: non of the matrices have a type 𝚪
+	 *  The variable {@link #trivial}represents the triviality of matrices:
+	 *  - 0: both matrices are trivial
+	 *  - 1: A̅ is not trivial
+	 *  - 2: non of the matrices are trivial
+	 *  The variable {@link #state} represents the state of robustness and type:
+	 *  - if the state is divisible by 2, it has a type of 𝚪⏌, else it's ⎾𝚪
+	 *  - 1, 2 : A̅ is non-trivial, robust, 
+	 *  - 11, 22: both A̲ a A̅ are non-trivial, robust,
+	 *  - 41, 31, 32 - must be trivial to be robust
+	 */	
+	public void checkProperties(){		
+		gamma = 0;
+		edge = -1;
+		trivial = 0;
+		state = -1;
+		for(int i = 0; i < dim; i++){
+			for(int j = i; j < dim; j++){	
+				if(gamma == 0){												
+					//checking for 1s
+					if(edge < 0){			
+						if(getValueOf(upperMatrix, i, j) == 1 
+						|| getValueOf(upperMatrix, j, i) == 1){
+							//found a loop at the position i,i -⎾𝚪
 							if(getValueOf(upperMatrix, i, i) == 1){
-								//lower and also the upper matrix have loop
 								edge = i;
-								if(getValueOf(lowerMatrix, i, i) == 1 ){
-									state = 22;
+								if(getValueOf(lowerMatrix, i, i) == 1){
+									state = 11;
+								}else{									
+									state = 1;	
 								}
-								//one of the matrices has a loop
-								else{
-									state = 2;
-								}	
 							}
-							//checking for the lower L with loop
+							//found a loop at the position j,j - 𝚪⏌
 							else if(getValueOf(upperMatrix, j, j) == 1){
-								//lower and also the upper matrix have loop
 								edge = j;
 								if(getValueOf(lowerMatrix, j, j) == 1){
-									state = 11;
+									state = 22;
+								}else{
+									state = 2;									
 								}
-								//one of the matrices has a loop
-								else{
-									state = 1;
-								}
-							}
-							//there's no loop
-							else{
+							}else{ //unsure of the type, need to be validated, assumed to type ⎾𝚪
+								state = 41;
 								edge = i;
-								state = -2;
-							}							
-						}
-						//there are no 1s
-						else{
-							state = 24;
-						}
-					}
-					
-					//checking for triviality
-					if(state == -2 && getValueOf(upperMatrix, i, j)==1){
-						if((i==edge && j>=0) || (j==edge && i>=0)){  
-							//assuming there's upper L-searching for other 1s
-							edge = i;
-							state = 20;
-						}
-						//if it's not the upper L it would be the lower L 
-						else{
-							edge = j;
-							state = 10;
-						}
-					}
-					//checking the lower Gamma type	- the lower matrix is trivial, the upper non-trivial				
-					if(state == 1 || state == 11 || state == 13 || state == 10 || state == 15 || state == 16){
-						//checks if there are other 1s out of the Gamma
-						if((getValueOf(lowerMatrix, i, j) == 1  ||
-								getValueOf(upperMatrix, i, j) == 1) && ((j>edge && i>=0) || (i>edge && j>=0))){
-							state = 0;
-						}
-						//the upper matrix has a loop
-						if(state == 1 && getValueOf(upperMatrix, i, j) == 1){
-							state = 15;
-						}
-						if(state == 10 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
-							//when they are both non trivial with no loop
-							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i)==1){
-								state = 13;
-							}							
-							else{
-								state = 16;
+								temp = j;							
 							}
 						}
 					}
-					//checking the upper Gamma type - the lower matrix is trivial, the upper non-trivial		
-					if(state == 2 || state == 22 || state == 23 || state == 20 || state == 25 || state == 26){
-						//checks if there are other 1s out of the Gamma
-						if((getValueOf(lowerMatrix, i, j) == 1  ||
-								getValueOf(upperMatrix, i, j) == 1) && (i > edge &&j > edge) ){
-							state = 0;
-						}
-						//the upper matrix has a loop
-						if(state == 2 && getValueOf(upperMatrix, i, j) == 1){
-							state = 25;
-						}
-						if(state == 20 && getValueOf(upperMatrix, i, j)==1 && getValueOf(upperMatrix, j, i)==1){
-							//when they are both non trivial and no loop
-							if(getValueOf(lowerMatrix, i, j) == 1 && getValueOf(lowerMatrix, j, i) == 1){
-								state = 23;
-							}
-							else{
-								state = 26;
-							}
-						}
-					}
-					
-				}
+					if(state > 0){
+						validate(i, j);
+					}						
+				}				
 			}
-			return state;
-		}
-		return 10;
+		}		
 	}
 	
 	/**
-	 * Decides the state of the chosen matrix, whether it is possibly,
-	 * universally robust, if it's trivial or if it has a type of Gamma.
-	 * @param state the option we want to know: 
-	 * 		0 - possibly robustness,
-	 * 		1 - universal robustness
-	 * 		2 - has type of Gamma or not
-	 * 		3 - triviality
-	 * @return a given String to print
-	 * @throws IsNotGreaterException 
-	 * @throws NullPointerException 
+	 * Checks if there are other 1s out of the 𝚪,
+	 * validates the type 𝚪  on a given position.
+	 * Also checks for its triviality.
+	 * 
+	 * @param row row index of the given position
+	 * @param col column index of the given position
 	 */
-	public String isRobust(int state) throws NullPointerException, IsNotGreaterException{
-		String textToPrint = "";
-		if(state == 2){
-			if(isL() < 20 && isL() > 0){
-				return "Matica Aᴹ je typu Γ⏌ !";
-			}else if(isL() == 0){
-				return "Matica Aᴹ NIE je typu Γ !";
-			}else{
-				return "Matica Aᴹ je typu ⎾Γ !";
+	public void validate(int row, int col){
+		//checking for triviality
+		if(trivial <= 1){
+			if(getValueOf(upperMatrix, row, col) == 1 
+			&& getValueOf(upperMatrix, col, row) == 1){
+				if(getValueOf(lowerMatrix, row, col) == 1 
+				&& getValueOf(lowerMatrix, col, row) == 1){
+					trivial = 2;
+				}else{
+					trivial = 1;
+				}							
 			}
 		}
-		
-		else if(state == 3){
-			if(isL() == 0){
-				return "Matica Aᴹ NIE je typu Γ !";			
-			}else if(isL() == 14 || isL() == 24){
-				return "Matica je triviálna.!";
-			}else if(isL() % 5 == 0 || isL() == 26 || isL() == 16){
-				return "Matica A̲ je triviálna, matica A̅ je netriviálna. ";
-			}else{
-				return "Matica Aᴹ je netriviálna !";
+		//validates the type when unsure
+		if(state == 41 	&& (getValueOf(upperMatrix, row, col) == 1 
+		|| getValueOf(upperMatrix, col, row) == 1)){
+			if((row == edge && col > temp) || (col == edge && row > temp)){
+				state = 31;
+				edge = row;
+			}else if((row == temp && col < temp && col > edge)
+				|| (col == temp && row < temp && row > edge)){
+				state = 32;
+				edge = temp;
 			}
 		}
-			
-		
-		else{
-				
-			switch (isL()){
-			case 0:				
-				textToPrint = "Matica Aᴹ nie je typu Γ !";
-				break;
-			case 24:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 14:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 23:
-				if(state == 0){
-					textToPrint =  "Matica Aᴹ nie je možne robustná.";
-					break;
-				}
-				else{
-					textToPrint =  "Matica  Aᴹ nie je univerzálne robustná.";
-					break;
-				}
-			case 13:
-				if(state == 0){
-					textToPrint =  "Matica Aᴹ nie je možne robustná.";
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
-					break;
-				}
-			case 2:
-				if(state == 0){
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
-					break;
-				}
-			case 1:
-				if(state == 0){
-					textToPrint =  "Matica Aᴹ je možne robustna.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";
-					break;
-				}
-			case 22:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 11:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-				case 15:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 25:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 16:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
-				}
-			case 26:
-				if(state == 1){
-					textToPrint =  "Matica Aᴹ nie je univerzálne robustná.";	
-					break;
-				}
-				else{
-					textToPrint =  "Matica Aᴹ je možne robustná.";	
-					break;
+		//validating the 𝚪 type
+		if(state % 2 == 0){
+			if((row > edge || col > edge || (row < edge && col < edge)) 
+			&& (getValueOf(upperMatrix, row, col) == 1 
+			|| getValueOf(upperMatrix, col, row) == 1)){
+				gamma = 1;
+				if(getValueOf(lowerMatrix, row, col) == 1 
+				|| getValueOf(lowerMatrix, col, row) == 1){
+					gamma = 2;
 				}			
-			default:
-				textToPrint =  "";
-				break;
 			}
-			
+		}else if(state % 2 == 1){
+			if((row > edge && col > edge) &&
+			(getValueOf(upperMatrix, row, col) == 1 
+			|| getValueOf(upperMatrix, col, row) == 1)){
+				gamma = 1;
+				if(getValueOf(lowerMatrix, row, col) == 1 
+				|| getValueOf(lowerMatrix, col, row) == 1){
+					gamma = 2;
+				}			
+			}
+		}			
+	}
+	
+	/**
+	 * Getter method for gamma to check if the matrix has a type of 𝚪.
+	 * @return String representing the actual state :
+	 * both matrices has a type of 𝚪 / only the lower matrix / non of the matrices
+	 * Also prints the position of the edge.
+	 */
+	public String isGama(){
+		String type = "";
+		
+		if(state == -1){
+			gamma = 3;
+		}if(state % 2 == 0){
+			type = "𝚪⏌";
+		}else{
+			type = "⎾𝚪 ";
+		}
+		switch(gamma){
+			case 0:
+				return " Matice A̲ a A̅ sú typu " + type + "pre 𝜸 = " + (edge+1) + ".";
+			case 1:
+				return " Matica A̅ nie je typu 𝚪. ";
+			case 2:
+				return " Matice A̲ a A̅ nie sú typu 𝚪.";
+			default:
+				return " Matice A̲ a A̅ sú typu 𝚪.";
+		}
+	}
+	
+	/**
+	 * Checks whether the given interval matrix is monge matrix.
+	 * If it has a type of 𝚪, it is monge, else it isn't.
+	 * @return text representing the mongeness of the interval matrix.
+	 * It won't print anything if it doesn't have the type of 𝚪.
+	 */
+	public String isMonge(){
+		if(gamma == 0 || gamma == 3){
+			return " Aᴹ je intervalovo mongeovská matica.";
+		}else{
+			return "";
 		}
 		
-		return textToPrint;
-			
 	}
+	
+	protected String isUni = " Matica Aᴹ je univerzálne robustná.",
+			   isPos = " Matica Aᴹ je možne robustná.",
+			   notUni = " Matica Aᴹ nie je univerzálne robustná.",
+			   notPos = " Matica Aᴹ nie je možne robustná.",
+			   notGamma = " Matica nie je uvažovaného typu.";	
+	
+	/**
+	 * Checks if the interval matrix of type 𝚪 is possibly robust or not.
+	 * An interval matrix of type 𝚪  is possibly robust if:
+	 * - at least one of the matrices A̲, A̅  of type 𝚪  are trivial
+	 * - at least one of the digraphs of matrices of type 𝚪  has a loop
+	 * If at least one of the matrices doesn't have a type of 𝚪,
+	 * the algorithm stops, and prints out a text to note the user,
+	 * that the matrix doesn't have the type we work with.
+	 * @see {@link #checkProperties()}
+	 * @return text - the matrix is/ is not possibly robust 
+	 */
+	public String isPosRobust(){		
+		if(gamma > 0){
+			return notGamma;
+		}else{
+			if(trivial < 2 || (state == 11 || state == 22)){
+				return isPos;
+			}else{
+				return notPos;
+			}
+		}		
+	}
+	
+	
+	/**
+	 * Checks if the interval matrix of type 𝚪 is universally robust or not.
+	 * An interval matrix of type 𝚪  is universally robust if:
+	 * - both of the matrices A̲, A̅  of type 𝚪  are trivial
+	 * - both of the digraphs of matrices of type 𝚪  has a loop
+	 * If at least one of the matrices doesn't have a type of 𝚪,
+	 * the algorithm stops, and prints out a text to note the user,
+	 * that the matrix doesn't have the type we work with.
+	 * @see {@link #checkProperties()}
+	 * @return text - the matrix is/ is not universally robust 
+	 */
+	public String isUniRobust(){		
+		if(gamma > 0){
+			return notGamma;
+		}else{
+			if(trivial == 0 || (state == 11 || state == 22) || 
+			((state == 1 || state ==2) && trivial == 1)){
+				return isUni;
+			}else{
+				return notUni;
+			}
+		}		
+	}
+	
+	/**
+	 * Checks whether the matrices are trivial or not.
+	 * @see {@link #checkProperties()}
+	 * @return text representing which matrix is/is not trivial
+	 */
+	public String isTrivial(){
+		switch(trivial){
+			case 0:
+				return " Matica A̲ a A̅ sú triviálne typu 𝚪 . ";
+			case 1:
+				return " Matica A̲ je triviálna, matica A̅ je netriviálna typu 𝚪 . ";
+			case 2:
+				return " Matica A̲ a A̅ sú netriviálne typu 𝚪 . ";
+			default:
+				return "";
+		}
+	}
+		
 	
 	
 	/**
