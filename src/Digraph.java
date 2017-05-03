@@ -30,7 +30,7 @@ public class Digraph extends JPanel{
     	JFrame frame = new JFrame(title);
 		frame.add(this);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(dim*100,300);
+		frame.setSize(dim*100,200);
 		frame.setVisible(true);			
 			
 		
@@ -81,7 +81,7 @@ public class Digraph extends JPanel{
 		//adding the nodes with its number
 		for(int i = 0;i < dim; i++){
 			String name = Integer.toString(sortedNodes.get(i));
-			this.addNode(name, 100*i+50, 120);			
+			this.addNode(name, 100*i+50, 80);			
 		}
 		
 		//adding the edges between nodes
@@ -175,10 +175,9 @@ public class Digraph extends JPanel{
 				
 				if(edge.node1 > edge.node2){
 					g.drawArc(node2.x, y1, wdth, hght, 0, -180);
-					//q.setCurve(node2.x, node2.y, wdth/2, hght, node1.x, node1.y);
 					drawArrow(g, node2.x-2, node2.y, -2);
 				}else{
-					g.drawArc(node1.x + 8, y2, wdth-8, hght, 0, 180);
+					g.drawArc(node1.x + 8, y2, wdth-14, hght, 0, 180);
 					drawArrow(g, node2.x, node2.y, 2);
 				}
 			}
@@ -220,8 +219,8 @@ public class Digraph extends JPanel{
 				g.drawLine(x, y+15, x+3, y+28);
 				break;
 			case 2:
-				g.drawLine(x, y-15, x-15, y-20);
-				g.drawLine(x, y-15, x-5, y-28);
+				g.drawLine(x-6, y-15, x-20, y-20);
+				g.drawLine(x-6, y-15, x-11, y-28);
 				break;				
 		}
 	}

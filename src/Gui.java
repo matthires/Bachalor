@@ -49,7 +49,7 @@ public class Gui {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		panel = new JLabel(new ImageIcon(
-			"/home/matty/Desktop/bachalor.zip_expanded/Bachalor/background.jpg"));
+			"/home/matty/Desktop/bachalor.zip_expanded/Bachelor/background.jpg"));
         panel.setOpaque(true);
         panel.setLayout(null);
         

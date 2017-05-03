@@ -467,10 +467,10 @@ public class Matrix {
 	}
 	
 	protected String isUni = " Matica Aᴹ je univerzálne robustná.",
-			   isPos = " Matica Aᴹ je možne robustná.",
-			   notUni = " Matica Aᴹ nie je univerzálne robustná.",
-			   notPos = " Matica Aᴹ nie je možne robustná.",
-			   notGamma = " Matica nie je uvažovaného typu.";	
+					 isPos = " Matica Aᴹ je možne robustná.",
+					 notUni = " Matica Aᴹ nie je univerzálne robustná.",
+					 notPos = " Matica Aᴹ nie je možne robustná.",
+					 notGamma = " Matica nie je uvažovaného typu.";	
 	
 	/**
 	 * Checks if the interval matrix of type 𝚪 is possibly robust or not.
@@ -487,7 +487,7 @@ public class Matrix {
 		if(gamma > 0){
 			return notGamma;
 		}else{
-			if(trivial < 2 || (state == 11 || state == 22)){
+			if(trivial < 2 || state == 11 || state == 22 || (trivial == 2 && state <= 22)){
 				return isPos;
 			}else{
 				return notPos;
@@ -511,8 +511,8 @@ public class Matrix {
 		if(gamma > 0){
 			return notGamma;
 		}else{
-			if(trivial == 0 || (state == 11 || state == 22) || 
-			((state == 1 || state ==2) && trivial == 1)){
+			if(trivial == 0 || (state == 11 || state == 22)
+			|| ((state == 1 || state ==2) && trivial == 1)){
 				return isUni;
 			}else{
 				return notUni;
@@ -528,11 +528,11 @@ public class Matrix {
 	public String isTrivial(){
 		switch(trivial){
 			case 0:
-				return " Matica A̲ a A̅ sú triviálne typu 𝚪 . ";
+				return " Matice A̲ a A̅ sú triviálne typu 𝚪 . ";
 			case 1:
 				return " Matica A̲ je triviálna, matica A̅ je netriviálna typu 𝚪 . ";
 			case 2:
-				return " Matica A̲ a A̅ sú netriviálne typu 𝚪 . ";
+				return " Matice A̲ a A̅ sú netriviálne typu 𝚪 . ";
 			default:
 				return "";
 		}
